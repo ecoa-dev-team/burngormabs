@@ -1,4 +1,4 @@
-package gormabs
+package burngormabs
 
 import (
 	"fmt"
