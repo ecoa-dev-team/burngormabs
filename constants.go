@@ -1,5 +1,4 @@
-package gormabs
-
+package burngormabs
 
 const (
 	GORM_SEARCH_INPUT_COUNT  = 2
