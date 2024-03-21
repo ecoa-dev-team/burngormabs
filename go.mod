@@ -1,4 +1,4 @@
-module github.com/ryananyangu/gormabs
+module github.com/ecoa-dev-team/burngormabs
 
 go 1.22.0
 
