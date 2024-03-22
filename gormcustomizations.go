@@ -107,6 +107,7 @@ func SearchOne(parameters map[string][]string, database *gorm.DB, model IModel, 
 	}
 	query := database.Table(model.GetTable())
 	err = SelectQueryBuilder(query, parameters)
+
 	if err != nil {
 		return err
 	}

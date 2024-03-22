@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>burngormabs: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/ecoa-dev-team/burngormabs/gormcustomizations.go (96.2%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package burngormabs
+
+import (
+        "context"
+        "encoding/json"
+        "fmt"
+        "strconv"
+        "strings"
+        "time"
+
+        "github.com/redis/go-redis/v9"
+        "gorm.io/gorm"
+)
+
+type CacheOptions struct {
+        CheckCache bool
+        TTL        time.Duration
+        Client     *redis.Client
+}
+
+type IModel interface {
+        GetTable() string
+}
+
+func SelectQueryBuilder(query *gorm.DB, parameters map[string][]string) (err error) <span class="cov8" title="1">{
+
+        query, err = GormSearch(parameters, query)
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">if orderby, isorderd := parameters["orderby"]; isorderd </span><span class="cov8" title="1">{
+                query = query.Order(orderby[0])
+        }</span>
+
+        <span class="cov8" title="1">pagestr, ispage := parameters["page"]
+        limitstr, islimit := parameters["size"]
+        if !islimit || !ispage </span><span class="cov8" title="1">{
+                limitstr = append(limitstr, "10")
+                pagestr = append(pagestr, "1")
+        }</span>
+        <span class="cov8" title="1">size, err := strconv.Atoi(limitstr[0])
+        page, err1 := strconv.Atoi(pagestr[0])
+        if err != nil || err1 != nil </span><span class="cov8" title="1">{
+                page = 1
+                size = 10
+                err = nil
+        }</span>
+        <span class="cov8" title="1">query.Offset(size * (page - 1)).Limit(size)
+        return</span>
+}
+
+func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, err error) <span class="cov8" title="1">{
+
+        for name, param := range queryParams </span><span class="cov8" title="1">{
+                value := strings.Split(name, "__")
+                if len(value) != GORM_SEARCH_INPUT_COUNT </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">columnOperation := value[0]
+                columnName := value[1]
+
+                switch columnOperation </span>{
+                case "ilike":<span class="cov0" title="0">
+                        query.Where(fmt.Sprintf("%s ILIKE ?", columnName), "%"+param[0]+"%")</span>
+                case "in":<span class="cov8" title="1">
+                        query.Where(fmt.Sprintf("%s IN (?)", columnName), strings.Split(param[0], ","))</span>
+                case "gte":<span class="cov8" title="1">
+                        query.Where(fmt.Sprintf("%s &gt;= ?", columnName), param[0])</span>
+                case "lte":<span class="cov8" title="1">
+                        query.Where(fmt.Sprintf("%s &lt;= ?", columnName), param[0])</span>
+                case "gt":<span class="cov8" title="1">
+                        query.Where(fmt.Sprintf("%s &gt; ?", columnName), param[0])</span>
+                case "lt":<span class="cov8" title="1">
+                        query.Where(fmt.Sprintf("%s &lt; ?", columnName), param[0])</span>
+                case "eq":<span class="cov8" title="1">
+                        query.Where(fmt.Sprintf("%s = ?", columnName), param[0])</span>
+                case "like":<span class="cov8" title="1">
+                        query.Where(fmt.Sprintf("%s LIKE ?", columnName), "%"+param[0]+"%")</span>
+                case "btwn":<span class="cov8" title="1">
+                        rangeBtwn := strings.Split(param[0], ",")
+                        if len(rangeBtwn) != RANGE_SEARCH_PARAM_COUNT </span><span class="cov8" title="1">{
+                                err = fmt.Errorf("range search requires 2 values received %v", param)
+                                return
+                        }</span>
+
+                        <span class="cov8" title="1">query.Where(fmt.Sprintf("%s &gt;= ? AND %s &lt; ?", columnName, columnName), rangeBtwn[0], rangeBtwn[1])</span>
+                default:<span class="cov8" title="1">
+                        continue</span>
+
+                }
+        }
+        <span class="cov8" title="1">q = query
+        return</span>
+}
+
+func SearchOne(parameters map[string][]string, database *gorm.DB, model IModel, output any, opts CacheOptions) (err error) <span class="cov8" title="1">{
+        key := model.GetTable()
+        for key := range parameters </span><span class="cov8" title="1">{
+                key += fmt.Sprintf("|%s,%s", key, parameters[key][0])
+        }</span>
+        <span class="cov8" title="1">if opts.CheckCache </span><span class="cov8" title="1">{
+                res, err := opts.Client.Get(context.Background(), key).Result()
+                err2 := json.Unmarshal([]byte(res), output)
+                if err == nil &amp;&amp; err2 == nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">query := database.Table(model.GetTable())
+        err = SelectQueryBuilder(query, parameters)
+
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">err = query.First(output).Error
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">if opts.CheckCache </span><span class="cov8" title="1">{
+                trxb, err := json.Marshal(output)
+                if err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">err = opts.Client.Set(context.Background(), key, trxb, time.Hour).Err()
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil
+                }</span>
+        }
+        <span class="cov8" title="1">return err</span>
+}
+
+func SearchMulti(parameters map[string][]string, database *gorm.DB, model IModel, output any) (err error) <span class="cov8" title="1">{
+        query := database.Table(model.GetTable())
+        err = SelectQueryBuilder(query, parameters)
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">err = query.Find(output).Error
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">return</span>
+}
+
+func Count(parameters map[string][]string, database *gorm.DB, model IModel) (count int64, err error) <span class="cov8" title="1">{
+        // Remove the pagination params
+        query := database.Table(model.GetTable())
+        query, err = GormSearch(parameters, query)
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">err = query.Count(&amp;count).Error
+        if err != nil </span><span class="cov8" title="1">{
+                return
+        }</span>
+        <span class="cov8" title="1">return</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
