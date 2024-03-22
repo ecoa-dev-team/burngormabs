@@ -212,3 +212,34 @@ func TestCountPagination(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, int64(4), count, "they should be equal")
 }
+
+func TestSearchOneBtwnError(t *testing.T) {
+	user := User{}
+	err := SearchOne(map[string][]string{"btwn__createdat": {"2024-03-01 09:00:00"}}, database, User{}, &user, CacheOptions{CheckCache: false})
+	assert.Error(t, err)
+
+}
+
+func TestSearchOneMissingCol(t *testing.T) {
+	user := User{}
+	err := SearchOne(map[string][]string{"eq__invalidcol": {"2024-03-01 09:00:00"}}, database, User{}, &user, CacheOptions{CheckCache: false})
+	assert.Error(t, err)
+
+}
+
+func TestSearchMultiInvalidCol(t *testing.T) {
+	users := []User{}
+	err := SearchMulti(map[string][]string{"eq__invalidcol": {"2024-03-01 09:00:00"}}, database, User{}, &users)
+	assert.Error(t, err)
+}
+
+func TestCountInvalidCol(t *testing.T) {
+	_, err := Count(map[string][]string{"eq__invalidcol": {"2024-03-01 09:00:00"}}, database, User{})
+	assert.Error(t, err)
+}
+
+func TestCountBtwnError(t *testing.T) {
+	_, err := Count(map[string][]string{"btwn__createdat": {"2024-03-01 09:00:00"}}, database, User{})
+	assert.Error(t, err)
+
+}
