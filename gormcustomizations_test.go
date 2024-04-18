@@ -101,7 +101,7 @@ func TestPersistance(t *testing.T) {
 }
 func TestSearchOne(t *testing.T) {
 	user := User{}
-	err := SearchOne(map[string][]string{"eq__lastname": {"two"}}, database, User{}, &user, CacheOptions{CheckCache: false})
+	err := SearchOne(map[string][]string{"eq__lastname": {"two"}}, database, &user)
 	assert.NoError(t, err)
 	assert.Equal(t, "test", user.FirstName, "they should be equal")
 }
@@ -188,9 +188,9 @@ func TestSearchMultiInvalidParam(t *testing.T) {
 
 func TestSearchOneCache(t *testing.T) {
 	user := User{}
-	err := SearchOne(map[string][]string{"eq__id": {"1"}}, database, User{}, &user, CacheOptions{CheckCache: true, TTL: time.Second, Client: redis_c})
+	err := SearchOne(map[string][]string{"eq__id": {"1"}}, database, &user)
 	assert.NoError(t, err)
-	err = SearchOne(map[string][]string{"eq__id": {"1"}}, database, User{}, &user, CacheOptions{CheckCache: true, TTL: time.Second, Client: redis_c})
+	err = SearchOne(map[string][]string{"eq__id": {"1"}}, database, &user)
 	assert.NoError(t, err)
 	assert.Equal(t, "test1", user.Username, "they should be equal")
 }
@@ -215,14 +215,14 @@ func TestCountPagination(t *testing.T) {
 
 func TestSearchOneBtwnError(t *testing.T) {
 	user := User{}
-	err := SearchOne(map[string][]string{"btwn__createdat": {"2024-03-01 09:00:00"}}, database, User{}, &user, CacheOptions{CheckCache: false})
+	err := SearchOne(map[string][]string{"btwn__createdat": {"2024-03-01 09:00:00"}}, database, &user)
 	assert.Error(t, err)
 
 }
 
 func TestSearchOneMissingCol(t *testing.T) {
 	user := User{}
-	err := SearchOne(map[string][]string{"eq__invalidcol": {"2024-03-01 09:00:00"}}, database, User{}, &user, CacheOptions{CheckCache: false})
+	err := SearchOne(map[string][]string{"eq__invalidcol": {"2024-03-01 09:00:00"}}, database, &user)
 	assert.Error(t, err)
 
 }
