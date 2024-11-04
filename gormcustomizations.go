@@ -84,6 +84,14 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 			}
 
 			query.Where(fmt.Sprintf("%s >= ? AND %s < ?", columnName, columnName), rangeBtwn[0], rangeBtwn[1])
+		case "is":
+			if strings.ToLower(param[0]) == "null" {
+				query = query.Where(fmt.Sprintf("%s IS NULL", columnName))
+			}
+		case "isnot":
+			if strings.ToLower(param[0]) == "null" {
+				query = query.Where(fmt.Sprintf("%s IS NOT NULL", columnName))
+			}
 		default:
 			continue
 
