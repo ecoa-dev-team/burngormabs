@@ -73,7 +73,9 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 		case "lt":
 			query.Where(fmt.Sprintf("%s < ?", columnName), param[0])
 		case "eq":
-			query.Where(fmt.Sprintf("%s = ?", columnName), param[0])
+			query = addOrConditions(query, columnName, param, false)
+		case "eqnot":
+			query = addOrConditions(query, columnName, param, true)
 		case "like":
 			query.Where(fmt.Sprintf("%s LIKE ?", columnName), "%"+param[0]+"%")
 		case "btwn":
@@ -84,14 +86,6 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 			}
 
 			query.Where(fmt.Sprintf("%s >= ? AND %s < ?", columnName, columnName), rangeBtwn[0], rangeBtwn[1])
-		case "is":
-			if strings.ToLower(param[0]) == "null" {
-				query = query.Where(fmt.Sprintf("%s IS NULL", columnName))
-			}
-		case "isnot":
-			if strings.ToLower(param[0]) == "null" {
-				query = query.Where(fmt.Sprintf("%s IS NOT NULL", columnName))
-			}
 		default:
 			continue
 
@@ -99,6 +93,35 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 	}
 	q = query
 	return
+}
+
+// Helper function to handle eq and eqnot conditions with OR
+func addOrConditions(query *gorm.DB, columnName string, param []string, negate bool) *gorm.DB {
+	var orConditions []string
+	var values []interface{}
+
+	for _, p := range param {
+		if strings.ToLower(p) == "null" {
+			if negate {
+				orConditions = append(orConditions, fmt.Sprintf("%s IS NOT NULL", columnName))
+			} else {
+				orConditions = append(orConditions, fmt.Sprintf("%s IS NULL", columnName))
+			}
+		} else {
+			if negate {
+				orConditions = append(orConditions, fmt.Sprintf("%s != ?", columnName))
+			} else {
+				orConditions = append(orConditions, fmt.Sprintf("%s = ?", columnName))
+			}
+			values = append(values, p)
+		}
+	}
+
+	if len(orConditions) > 0 {
+		query = query.Where(strings.Join(orConditions, " OR "), values...)
+	}
+
+	return query
 }
 
 func SearchOne(parameters map[string][]string, database *gorm.DB, model IModel, output any, opts CacheOptions) (err error) {
