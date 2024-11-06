@@ -100,7 +100,10 @@ func addOrConditions(query *gorm.DB, columnName string, param []string, negate b
 	var orConditions []string
 	var values []interface{}
 
-	for _, p := range param {
+	params := strings.Split(param[0], ",")
+	for _, p := range params {
+		p = strings.TrimSpace(p)
+
 		if strings.ToLower(p) == "null" {
 			if negate {
 				orConditions = append(orConditions, fmt.Sprintf("%s IS NOT NULL", columnName))
