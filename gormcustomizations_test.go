@@ -74,6 +74,13 @@ func setup() {
 			LastName:  "four",
 			CreatedAt: time.Date(2024, time.March, 1, 10, 0, 0, 0, time.Local),
 		},
+		{
+			ID:        5,
+			Username:  "test5",
+			FirstName: "five",
+			LastName:  "",
+			CreatedAt: time.Date(2024, time.March, 1, 11, 0, 0, 0, time.Local),
+		},
 	}
 	database.Create(&data)
 	fmt.Printf("\033[1;33m%s\033[0m", "> Setup completed")
@@ -97,13 +104,20 @@ func TestPersistance(t *testing.T) {
 	users := []User{}
 	err := database.Find(&users).Error
 	assert.NoError(t, err)
-	assert.Equal(t, 4, len(users), "they should be equal")
+	assert.Equal(t, 5, len(users), "they should be equal")
 }
 func TestSearchOne(t *testing.T) {
 	user := User{}
 	err := SearchOne(map[string][]string{"eq__lastname": {"two"}}, database, User{}, &user, CacheOptions{CheckCache: false})
 	assert.NoError(t, err)
 	assert.Equal(t, "test", user.FirstName, "they should be equal")
+}
+
+func TestSearchMultiEq(t *testing.T) {
+	users := []User{}
+	err := SearchMulti(map[string][]string{"eq__lastname": {"two, null,"}}, database, User{}, &users)
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(users), "they should be equal")
 }
 
 func TestSearchMulti(t *testing.T) {
@@ -144,7 +158,7 @@ func TestSearchMultiPaginationError(t *testing.T) {
 	users := []User{}
 	err := SearchMulti(map[string][]string{"page": {"a"}, "size": {"b"}}, database, User{}, &users)
 	assert.NoError(t, err)
-	assert.Equal(t, 4, len(users), "they should be equal")
+	assert.Equal(t, 5, len(users), "they should be equal")
 }
 func TestSearchMultiOrderBy(t *testing.T) {
 	users := []User{}
@@ -157,14 +171,14 @@ func TestSearchMultiGte(t *testing.T) {
 	users := []User{}
 	err := SearchMulti(map[string][]string{"gte__id": {"2"}}, database, User{}, &users)
 	assert.NoError(t, err)
-	assert.Equal(t, 3, len(users), "they should be equal")
+	assert.Equal(t, 4, len(users), "they should be equal")
 }
 
 func TestSearchMultiGt(t *testing.T) {
 	users := []User{}
 	err := SearchMulti(map[string][]string{"gt__id": {"2"}}, database, User{}, &users)
 	assert.NoError(t, err)
-	assert.Equal(t, 2, len(users), "they should be equal")
+	assert.Equal(t, 3, len(users), "they should be equal")
 }
 
 func TestSearchMultiBtwn(t *testing.T) {
@@ -183,7 +197,7 @@ func TestSearchMultiInvalidParam(t *testing.T) {
 	users := []User{}
 	err := SearchMulti(map[string][]string{"nggn__createdat": {"2024-03-01 09:00:00"}}, database, User{}, &users)
 	assert.NoError(t, err)
-	assert.Equal(t, 4, len(users), "they should be equal")
+	assert.Equal(t, 5, len(users), "they should be equal")
 }
 
 func TestSearchOneCache(t *testing.T) {
@@ -210,7 +224,7 @@ func TestCountNoMatch(t *testing.T) {
 func TestCountPagination(t *testing.T) {
 	count, err := Count(map[string][]string{"page": {"1"}, "size": {"2"}}, database, User{})
 	assert.NoError(t, err)
-	assert.Equal(t, int64(4), count, "they should be equal")
+	assert.Equal(t, int64(5), count, "they should be equal")
 }
 
 func TestSearchOneBtwnError(t *testing.T) {

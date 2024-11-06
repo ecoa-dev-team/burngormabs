@@ -73,7 +73,9 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 		case "lt":
 			query.Where(fmt.Sprintf("%s < ?", columnName), param[0])
 		case "eq":
-			query.Where(fmt.Sprintf("%s = ?", columnName), param[0])
+			query = addOrConditions(query, columnName, param, false)
+		case "eqnot":
+			query = addOrConditions(query, columnName, param, true)
 		case "like":
 			query.Where(fmt.Sprintf("%s LIKE ?", columnName), "%"+param[0]+"%")
 		case "btwn":
@@ -91,6 +93,38 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 	}
 	q = query
 	return
+}
+
+// Helper function to handle eq and eqnot conditions with OR
+func addOrConditions(query *gorm.DB, columnName string, param []string, negate bool) *gorm.DB {
+	var orConditions []string
+	var values []interface{}
+
+	params := strings.Split(param[0], ",")
+	for _, p := range params {
+		p = strings.TrimSpace(p)
+
+		if strings.ToLower(p) == "null" {
+			if negate {
+				orConditions = append(orConditions, fmt.Sprintf("%s IS NOT NULL", columnName))
+			} else {
+				orConditions = append(orConditions, fmt.Sprintf("%s IS NULL", columnName))
+			}
+		} else {
+			if negate {
+				orConditions = append(orConditions, fmt.Sprintf("%s != ?", columnName))
+			} else {
+				orConditions = append(orConditions, fmt.Sprintf("%s = ?", columnName))
+			}
+			values = append(values, p)
+		}
+	}
+
+	if len(orConditions) > 0 {
+		query = query.Where(strings.Join(orConditions, " OR "), values...)
+	}
+
+	return query
 }
 
 func SearchOne(parameters map[string][]string, database *gorm.DB, model IModel, output any, opts CacheOptions) (err error) {
