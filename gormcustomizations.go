@@ -50,6 +50,8 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 			query.Where(fmt.Sprintf("%s ILIKE ?", columnName), "%"+param[0]+"%")
 		case "in":
 			query.Where(fmt.Sprintf("%s IN (?)", columnName), strings.Split(param[0], ","))
+		case "nin":
+			query.Where(fmt.Sprintf("%s NOT IN (?)", columnName), strings.Split(param[0], ","))
 		case "gte":
 			query.Where(fmt.Sprintf("%s >= ?", columnName), param[0])
 		case "lte":
