@@ -19,7 +19,7 @@ require (
 	github.com/alicebob/miniredis/v2 v2.31.1
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.5.5
 	github.com/stretchr/testify v1.9.0
 	gorm.io/driver/sqlite v1.5.5
 )
