@@ -36,7 +36,7 @@ func RepositoryGenerator() error {
 
 	}
 
-	dir := filepath.Dir(initialized.FileName)
+	dir := filepath.Dir(initialized.FilePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
