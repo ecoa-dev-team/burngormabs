@@ -9,11 +9,11 @@ import (
 )
 
 type Model interface {
-	TableName() string
+	GenericCRUDImpl[any]
 }
 
 type Init struct {
-	Models   []Model
+	Models   []any
 	Db       *gorm.DB
 	FilePath string
 	FileName string
@@ -23,7 +23,7 @@ type Init struct {
 var initialized *Init
 
 // Define a generic implementation of CRUD operations
-type GenericCRUDImpl[T Model] struct {
+type GenericCRUDImpl[T any] struct {
 	model *T // Hold a reference to the outer struct
 }
 
@@ -39,7 +39,7 @@ type GenericCRUD[T Model] interface {
 	CountRecords(url.Values) (int64, error)
 }
 
-func GetRegisteredModels() []Model {
+func GetRegisteredModels() []any {
 	return initialized.Models
 }
 
