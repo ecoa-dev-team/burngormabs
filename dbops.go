@@ -1,9 +1,9 @@
 package burngormabs
 
 import (
-	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"gorm.io/gorm"
@@ -114,6 +114,7 @@ func (init *Init) Initialize() {
 		}
 		init.FilePath = dir
 	}
-	init.FilePath += fmt.Sprintf("/%s", init.Package)
+
+	init.FilePath = filepath.Join(init.FilePath, init.Package)
 	initialized = init
 }
