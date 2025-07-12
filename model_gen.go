@@ -40,8 +40,9 @@ func (init *Init) RepositoryGenerator() error {
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
-
-	f, err := os.Create(init.FileName)
+	// Create file inside the directory
+	fullPath := filepath.Join(dir, init.FileName)
+	f, err := os.Create(fullPath)
 	if err != nil {
 		return err
 	}
