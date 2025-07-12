@@ -37,15 +37,15 @@ func (init *Init) RepositoryGenerator() error {
 
 	}
 
-	dir := filepath.Dir(init.FilePath)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return err
-	}
+	// dir := filepath.Dir(init.FilePath)
+	// if err := os.MkdirAll(dir, 0755); err != nil {
+	// 	return err
+	// }
 	// Create file inside the directory
 	// filepath.B/
-	dst, err := os.Create(filepath.Join(dir, filepath.Base(init.FileName)))
+	dst, err := os.Create(filepath.Join(init.FilePath, filepath.Base(init.FileName)))
 	// fullPath := filepath.Join(dir, init.FileName)
-	fmt.Println(dir)
+	fmt.Println(init.FilePath)
 	// f, err := os.Create(fullPath)
 	if err != nil {
 		return err
