@@ -42,14 +42,16 @@ func (init *Init) RepositoryGenerator() error {
 		return err
 	}
 	// Create file inside the directory
-	fullPath := filepath.Join(dir, init.FileName)
-	fmt.Println(fullPath)
-	f, err := os.Create(fullPath)
+	// filepath.B/
+	dst, err := os.Create(filepath.Join(dir, filepath.Base(init.FileName)))
+	// fullPath := filepath.Join(dir, init.FileName)
+	fmt.Println(dir)
+	// f, err := os.Create(fullPath)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer dst.Close()
 
 	tmpl := template.Must(template.New("union").Parse(unionTemplate))
-	return tmpl.Execute(f, data)
+	return tmpl.Execute(dst, data)
 }
