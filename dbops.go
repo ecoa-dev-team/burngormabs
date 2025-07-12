@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	// "github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -92,10 +91,6 @@ func (g GenericCRUDImpl[T]) CountRecords(searchFilter url.Values) (int64, error)
 }
 
 func Initialize(init *Init) {
-	// validate := validator.New()
-	// if err := validate.Struct(*init); err != nil {
-	// 	panic(err)
-	// }
 	if len(init.Models) <= 0 {
 		panic("no models declared")
 	}
@@ -104,7 +99,7 @@ func Initialize(init *Init) {
 	}
 
 	if strings.EqualFold(init.Package, "") {
-		init.Package = "models"
+		init.Package = "main"
 	}
 	folders := strings.Split(init.FilePath, "/")
 	if len(folders) <= 0 {
@@ -116,6 +111,4 @@ func Initialize(init *Init) {
 		init.FilePath = dir
 	}
 	initialized = init
-	// FIXME: Do the file
-
 }
