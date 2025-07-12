@@ -91,7 +91,7 @@ func (g GenericCRUDImpl[T]) CountRecords(searchFilter url.Values) (int64, error)
 	return Count(searchFilter, initialized.Db, new(T))
 }
 
-func Initialize(init *Init) {
+func (init *Init) Initialize() {
 	if len(init.Models) <= 0 {
 		panic("no models declared")
 	}

@@ -22,26 +22,26 @@ func New{{ . }}() *{{ . }} {
 {{ end -}}
 `
 
-func RepositoryGenerator() error {
+func (init *Init) RepositoryGenerator() error {
 	data := struct {
 		Package string
 		Types   []string
 	}{
-		Package: initialized.Package,
+		Package: init.Package,
 		Types:   []string{},
 	}
-	for _, _struct := range initialized.Models {
+	for _, _struct := range init.Models {
 		_structInfo := utilities.GetStructInfo(_struct)
 		data.Types = append(data.Types, _structInfo.Name)
 
 	}
 
-	dir := filepath.Dir(initialized.FilePath)
+	dir := filepath.Dir(init.FilePath)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
 	}
 
-	f, err := os.Create(initialized.FileName)
+	f, err := os.Create(init.FileName)
 	if err != nil {
 		return err
 	}
