@@ -25,7 +25,7 @@ var initialized *Init
 
 // Define a generic implementation of CRUD operations
 type GenericCRUDImpl[T any] struct {
-	model *T // Hold a reference to the outer struct
+	Model *T // Hold a reference to the outer struct
 }
 
 func ValidateModel[T Model]() {}
@@ -45,21 +45,21 @@ func GetRegisteredModels() []any {
 }
 
 func (g GenericCRUDImpl[T]) Create() error {
-	return initialized.Db.Create(g.model).Error
+	return initialized.Db.Create(g.Model).Error
 }
 
 func (g GenericCRUDImpl[T]) Update(queries ...*gorm.DB) error {
 	if len(queries) != 0 {
-		return queries[0].Updates(g.model).Error
+		return queries[0].Updates(g.Model).Error
 	}
-	return initialized.Db.Updates(g.model).Error
+	return initialized.Db.Updates(g.Model).Error
 }
 
 func (g GenericCRUDImpl[T]) Get(queries ...*gorm.DB) error {
 	if len(queries) != 0 {
-		return queries[0].Where(g.model).First(g.model).Error
+		return queries[0].Where(g.Model).First(g.Model).Error
 	}
-	return initialized.Db.Where(g.model).First(g.model).Error
+	return initialized.Db.Where(g.Model).First(g.Model).Error
 }
 
 func (g GenericCRUDImpl[T]) GetAllSearch(searchFilter url.Values, queries ...*gorm.DB) ([]T, error) {
