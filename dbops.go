@@ -1,6 +1,7 @@
 package burngormabs
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"strings"
@@ -96,6 +97,10 @@ func Initialize(init *Init) {
 	}
 	if strings.EqualFold(init.FileName, "") {
 		init.FileName = "genmodels.go"
+	} else {
+		if !strings.HasSuffix(init.FileName, ".go") {
+			init.FileName += ".go"
+		}
 	}
 
 	if strings.EqualFold(init.Package, "") {
@@ -107,7 +112,7 @@ func Initialize(init *Init) {
 		if err != nil {
 			panic(err)
 		}
-		dir += init.Package
+		dir += fmt.Sprintf("/%s", init.Package)
 		init.FilePath = dir
 	}
 	initialized = init
