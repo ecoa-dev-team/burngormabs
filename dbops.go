@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
 )
 
@@ -13,8 +14,8 @@ type Model interface {
 }
 
 type Init struct {
-	Models   []any
-	Db       *gorm.DB
+	Models   []any    `validate:"min=1,required"`
+	Db       *gorm.DB `validate:"required"`
 	FilePath string
 	FileName string
 	Package  string // Definately gets overwritten depending on user input
@@ -91,6 +92,10 @@ func (g GenericCRUDImpl[T]) CountRecords(searchFilter url.Values) (int64, error)
 }
 
 func Initialize(init *Init) {
+	validate := validator.New()
+	if err := validate.Struct(init); err != nil {
+		panic(err)
+	}
 	if len(init.Models) <= 0 {
 		panic("no models declared")
 	}
