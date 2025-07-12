@@ -114,6 +114,6 @@ func (init *Init) Initialize() {
 		init.FilePath = dir
 	}
 
-	init.FilePath = fmt.Sprintf("/%s", init.Package)
+	init.FilePath += fmt.Sprintf("/%s", init.Package)
 	initialized = init
 }
