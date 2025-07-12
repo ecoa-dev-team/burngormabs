@@ -112,8 +112,8 @@ func (init *Init) Initialize() {
 		if err != nil {
 			panic(err)
 		}
-		dir += fmt.Sprintf("/%s", init.Package)
 		init.FilePath = dir
 	}
+	init.FilePath += fmt.Sprintf("/%s", init.Package)
 	initialized = init
 }
