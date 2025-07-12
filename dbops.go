@@ -99,12 +99,12 @@ func Initialize(init *Init) {
 	if len(init.Models) <= 0 {
 		panic("no models declared")
 	}
-	if strings.EqualFold(initialized.FileName, "") {
-		initialized.FileName = "genmodels.go"
+	if strings.EqualFold(init.FileName, "") {
+		init.FileName = "genmodels.go"
 	}
 
 	if strings.EqualFold(init.Package, "") {
-		initialized.Package = "models"
+		init.Package = "models"
 	}
 	folders := strings.Split(init.FilePath, "/")
 	if len(folders) <= 0 {
@@ -113,7 +113,7 @@ func Initialize(init *Init) {
 			panic(err)
 		}
 		dir += init.Package
-		initialized.FilePath = dir
+		init.FilePath = dir
 	}
 	initialized = init
 	// FIXME: Do the file
