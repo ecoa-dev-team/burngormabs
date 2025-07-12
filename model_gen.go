@@ -18,7 +18,7 @@ type Model interface {
 }
 `
 
-func writeUnionFile() error {
+func RepositoryGenerator() error {
 	data := struct {
 		Package string
 		Types   []string
