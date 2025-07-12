@@ -1,6 +1,7 @@
 package burngormabs
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"text/template"
@@ -42,6 +43,7 @@ func (init *Init) RepositoryGenerator() error {
 	}
 	// Create file inside the directory
 	fullPath := filepath.Join(dir, init.FileName)
+	fmt.Println(fullPath)
 	f, err := os.Create(fullPath)
 	if err != nil {
 		return err
