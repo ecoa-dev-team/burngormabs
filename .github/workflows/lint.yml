@@ -1,0 +1,34 @@
+name: Lint Go Code
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  merge_group: {}  # For GitHub merge queue if enabled
+
+jobs:
+  lint:
+    name: Run golangci-lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable  # or your project's Go version
+
+      - name: Install golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.2.1
+          only-new-issues: true
+
+      - name: Show lint summary
+        if: always()
+        run: echo "Lint completed"

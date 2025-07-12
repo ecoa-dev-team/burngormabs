@@ -8,14 +8,11 @@ import (
 
 	"gorm.io/gorm"
 
-	"github.com/alicebob/miniredis/v2"
-	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"
 )
 
 var database *gorm.DB
-var redis_c *redis.Client
 
 type User struct {
 	ID        uint      `json:"id" gorm:"column:id" binding:"required"`
@@ -30,13 +27,7 @@ func (u User) GetTable() string {
 }
 
 func setup() {
-	mr, err := miniredis.Run()
-	if err != nil {
-		return
-	}
-	redis_c = redis.NewClient(&redis.Options{
-		Addr: mr.Addr(),
-	})
+
 	// NOTE: Database setup
 	db, err := gorm.Open(sqlite.Open("file:memdb1?mode=memory&cache=shared"), &gorm.Config{})
 	if err != nil {

@@ -1,0 +1,56 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - revive
+    - errcheck
+    - ineffassign
+  exclusions:
+    warn-unused: false
+    paths:
+      - "docs/*"
+      - "tests/*"
+  settings:
+    revive:
+      rules:
+        - name: atomic
+        - name: line-length-limit
+          severity: error
+          arguments: [80]
+        - name: add-constant
+        - name: argument-limit
+          arguments: [8]
+        - name: cyclomatic
+          arguments: [10]
+        - name: defer
+        - name: exported
+        - name: function-length
+        - name: function-result-limit
+        - name: identical-branches
+        - name: if-return
+        - name: max-control-nesting
+        - name: unused-parameter
+        - name: use-errors-new
+        - name: var-declaration
+        - name: waitgroup-by-value
+        - name: var-naming
+        - name: unhandled-error
+          arguments:
+            [
+              '^os\.(CreateTemp|WriteFile|Chmod)$',
+              '^fmt\.Print',
+              "myFunction",
+              '^net\.',
+              '^(bytes\.Buffer|string\.Writer)\.Write(Byte|Rune|String)?$',
+            ]
+# Output configuration options.
+output:
+  # The formats used to render issues.
+  formats:
+    text:
+      path: stdout

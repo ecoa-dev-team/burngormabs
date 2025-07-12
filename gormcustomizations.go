@@ -2,13 +2,14 @@ package burngormabs
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
 	"gorm.io/gorm"
 )
 
-func SelectQueryBuilder(query *gorm.DB, parameters map[string][]string) (err error) {
+func SelectQueryBuilder(query *gorm.DB, parameters url.Values) (err error) {
 
 	query, err = GormSearch(parameters, query)
 	if err != nil {
@@ -35,7 +36,7 @@ func SelectQueryBuilder(query *gorm.DB, parameters map[string][]string) (err err
 	return
 }
 
-func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, err error) {
+func GormSearch(queryParams url.Values, query *gorm.DB) (q *gorm.DB, err error) {
 
 	for name, param := range queryParams {
 		value := strings.Split(name, "__")
@@ -45,25 +46,28 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 		columnOperation := value[0]
 		columnName := value[1]
 
+		columns := strings.Split(columnName, ":")
+		paramVal := param[0]
+
 		switch columnOperation {
 		case "ilike":
-			query.Where(fmt.Sprintf("%s ILIKE ?", columnName), "%"+param[0]+"%")
+			query.Where(compoundOr(columns, "%"+paramVal+"%", "ILIKE"))
 		case "in":
-			query.Where(fmt.Sprintf("%s IN (?)", columnName), strings.Split(param[0], ","))
+			query.Where(compoundOrIn(columns, strings.Split(paramVal, ","), true))
 		case "nin":
-			query.Where(fmt.Sprintf("%s NOT IN (?)", columnName), strings.Split(param[0], ","))
+			query.Where(compoundOrIn(columns, strings.Split(paramVal, ","), false))
 		case "gte":
-			query.Where(fmt.Sprintf("%s >= ?", columnName), param[0])
+			query.Where(compoundOr(columns, paramVal, ">="))
 		case "lte":
-			query.Where(fmt.Sprintf("%s <= ?", columnName), param[0])
+			query.Where(compoundOr(columns, paramVal, "<="))
 		case "gt":
-			query.Where(fmt.Sprintf("%s > ?", columnName), param[0])
+			query.Where(compoundOr(columns, paramVal, ">"))
 		case "lt":
-			query.Where(fmt.Sprintf("%s < ?", columnName), param[0])
+			query.Where(compoundOr(columns, paramVal, "<"))
 		case "eq":
-			query.Where(fmt.Sprintf("%s = ?", columnName), param[0])
+			query.Where(compoundOr(columns, paramVal, "="))
 		case "like":
-			query.Where(fmt.Sprintf("%s LIKE ?", columnName), "%"+param[0]+"%")
+			query.Where(compoundOr(columns, "%"+paramVal+"%", "LIKE"))
 		case "btwn":
 			rangeBtwn := strings.Split(param[0], ",")
 			if len(rangeBtwn) != RANGE_SEARCH_PARAM_COUNT {
@@ -81,7 +85,30 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 	return
 }
 
-func SearchOne(parameters map[string][]string, database *gorm.DB, output any) (err error) {
+func compoundOr(columns []string, value interface{}, operator string) (clause string, args []interface{}) {
+	var conditions []string
+	for _, col := range columns {
+		conditions = append(conditions, fmt.Sprintf("%s %s ?", col, operator))
+		args = append(args, value)
+	}
+	clause = "(" + strings.Join(conditions, " OR ") + ")"
+	return
+}
+
+func compoundOrIn(columns []string, values []string, include bool) (clause string, args []interface{}) {
+	var conditions []string
+	for _, col := range columns {
+		if include {
+			conditions = append(conditions, fmt.Sprintf("%s IN (?)", col))
+		} else {
+			conditions = append(conditions, fmt.Sprintf("%s NOT IN (?)", col))
+		}
+		args = append(args, values)
+	}
+	clause = "(" + strings.Join(conditions, " OR ") + ")"
+	return
+}
+func SearchOne(parameters url.Values, database *gorm.DB, output any) (err error) {
 
 	query := database.Model(output)
 	err = SelectQueryBuilder(query, parameters)
@@ -96,7 +123,7 @@ func SearchOne(parameters map[string][]string, database *gorm.DB, output any) (e
 	return err
 }
 
-func SearchMulti(parameters map[string][]string, database *gorm.DB, model any, output any) (err error) {
+func SearchMulti(parameters url.Values, database *gorm.DB, model any, output any) (err error) {
 	query := database.Model(model)
 	err = SelectQueryBuilder(query, parameters)
 	if err != nil {
@@ -109,7 +136,7 @@ func SearchMulti(parameters map[string][]string, database *gorm.DB, model any, o
 	return
 }
 
-func Count(parameters map[string][]string, database *gorm.DB, model any) (count int64, err error) {
+func Count(parameters url.Values, database *gorm.DB, model any) (count int64, err error) {
 	// Remove the pagination params
 	query := database.Model(model)
 	query, err = GormSearch(parameters, query)
