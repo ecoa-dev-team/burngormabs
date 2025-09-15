@@ -62,6 +62,8 @@ func GormSearch(queryParams map[string][]string, query *gorm.DB) (q *gorm.DB, er
 			query.Where(fmt.Sprintf("%s < ?", columnName), param[0])
 		case "eq":
 			query.Where(fmt.Sprintf("%s = ?", columnName), param[0])
+		case "neq":
+			query.Where(fmt.Sprintf("%s <> ?", columnName), param[0])
 		case "like":
 			query.Where(fmt.Sprintf("%s LIKE ?", columnName), "%"+param[0]+"%")
 		case "btwn":

@@ -243,3 +243,17 @@ func TestCountBtwnError(t *testing.T) {
 	assert.Error(t, err)
 
 }
+
+func TestSearchMultiNeq(t *testing.T) {
+	users := []User{}
+	err := SearchMulti(map[string][]string{"neq__lastname": {"one"}}, database, User{}, &users)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(users), "should return all users except 'one'")
+}
+
+func TestSearchOneNeq(t *testing.T) {
+	user := User{}
+	err := SearchOne(map[string][]string{"neq__lastname": {"one"}}, database, &user)
+	assert.NoError(t, err)
+	assert.NotEqual(t, "one", user.LastName, "should not return user with lastname 'one'")
+}
